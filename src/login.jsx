@@ -1,10 +1,14 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { CiPhone } from "react-icons/ci";
 import { RiLockPasswordLine } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
-    phone: "",
+    email: "",
     password: "",
   });
 
@@ -18,6 +22,30 @@ const Login = () => {
 
   function clickOnSubmit(event) {
     event.preventDefault();
+    if (formData.email.length > 5 && formData.password.length > 2) {
+      axios
+        .post("http://localhost:3001/api/user/login", formData)
+        .then((response) => {
+          if (response.status == 200) {
+            console.log(response);
+            navigate("/");
+          } else {
+            alert("response");
+          }
+        })
+        .catch((err) => {
+          console.log(err.response.status);
+          if (err.response.status == 404) {
+            alert("User Not Found!");
+          } else if (err.response.status == 401) {
+            alert(err.response.data.message);
+          } else {
+            alert("Failed To Login");
+          }
+        });
+    } else {
+      alert("Form Field are not correct! Try Again");
+    }
   }
 
   return (
@@ -32,12 +60,12 @@ const Login = () => {
             <div className="flex items-center border-2 mb-8 py-2 px-3 rounded-2xl">
               <CiPhone />
               <input
-                id="phone"
+                id="email"
                 className=" pl-2 w-full outline-none border-none"
-                type="tel"
-                name="phone"
-                placeholder="Phone"
-                value={formData.phone}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
                 onChange={handleChange}
               />
             </div>
